@@ -1,0 +1,17 @@
+{
+  "name": "neural-pacman-runner-vercel",
+  "version": "1.0.0",
+  "description": "Neural Pac-Man Runner — Vercel Edition (Express + Vercel Postgres)",
+  "main": "api/index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "express":           "^4.18.3",
+    "@vercel/postgres":  "^0.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
