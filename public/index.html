@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEURAL PAC-MAN RUNNER</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">◉ PAC-RUNNER</a>
+  <div class="nav-links">
+    <a href="/"            class="nav-link active">HOME</a>
+    <a href="/game"        class="nav-link">PLAY</a>
+    <a href="/leaderboard" class="nav-link">SCORES</a>
+  </div>
+  <div id="nav-coins" style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--yellow);">
+    ◈ <span id="nc-val">0</span>
+  </div>
+</nav>
+
+<div class="page">
+  <section class="hero">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--cyan);opacity:.6;margin-bottom:18px;">
+      ⬡ FACE-CONTROLLED ENDLESS RUNNER ⬡
+    </div>
+
+    <!-- Animated Pac-Man logo -->
+    <div style="font-size:clamp(60px,12vw,130px);line-height:1;margin-bottom:6px;animation:pmPulse 1s ease-in-out infinite;">
+      ◖
+    </div>
+    @keyframes pmPulse { 0%,100%{content:'◖'} 50%{content:'●'} }
+
+    <h1 class="hero-title">PAC-RUNNER</h1>
+    <p class="hero-sub">OPEN YOUR MOUTH · TILT YOUR HEAD · SURVIVE</p>
+
+    <!-- Callsign input -->
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:40px;flex-wrap:wrap;justify-content:center;">
+      <input id="player-name" maxlength="16" placeholder="YOUR CALLSIGN"
+        style="background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:8px;
+               color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;
+               letter-spacing:2px;padding:11px 20px;outline:none;width:220px;text-transform:uppercase;
+               transition:border-color .3s;"
+        onfocus="this.style.borderColor='var(--cyan)'"
+        onblur="this.style.borderColor='var(--border)'"
+      />
+      <button class="btn btn-primary btn-lg" onclick="startGame()">▶ PLAY NOW</button>
+    </div>
+
+    <!-- Player stats -->
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-bottom:64px;">
+      <div class="card" style="min-width:110px;text-align:center;padding:16px 24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--yellow);" id="stat-best">0</div>
+        <div style="font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-top:4px;">BEST SCORE</div>
+      </div>
+      <div class="card" style="min-width:110px;text-align:center;padding:16px 24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--cyan);" id="stat-games">0</div>
+        <div style="font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-top:4px;">GAMES</div>
+      </div>
+      <div class="card" style="min-width:110px;text-align:center;padding:16px 24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green);" id="stat-coins">0</div>
+        <div style="font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-top:4px;">◈ COINS</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <div class="features-grid">
+    <div class="card">
+      <span class="feature-icon">😮</span>
+      <div class="feature-name">MOUTH = EAT</div>
+      <div class="feature-desc">Open your mouth and Pac-Man chomps coins and power pellets. Close it and he stops eating.</div>
+    </div>
+    <div class="card">
+      <span class="feature-icon">↔️</span>
+      <div class="feature-name">TILT = LANE</div>
+      <div class="feature-desc">Tilt your head left/right to switch lanes. Head straight? Auto-center to middle lane.</div>
+    </div>
+    <div class="card">
+      <span class="feature-icon">👻</span>
+      <div class="feature-name">DODGE GHOSTS</div>
+      <div class="feature-desc">Ghosts block lanes. Switch lanes to avoid. Eat a power pellet to turn the tables.</div>
+    </div>
+    <div class="card">
+      <span class="feature-icon">⬡</span>
+      <div class="feature-name">COLLECT COINS</div>
+      <div class="feature-desc">Coins arranged in patterns down the lanes. Chain them for max score on the neon road.</div>
+    </div>
+    <div class="card">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-name">SPEED UP</div>
+      <div class="feature-desc">Road gets faster every second. How long can you survive the neon grid?</div>
+    </div>
+    <div class="card">
+      <span class="feature-icon">📸</span>
+      <div class="feature-name">FACE SNAP</div>
+      <div class="feature-desc">Your face is captured every 5 seconds in full color and saved to Vercel Blob.</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-card">
+    <div class="card">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:5px;color:var(--cyan);text-align:center;margin-bottom:20px;">// CONTROL SCHEME //</div>
+      <div class="ctrl-grid">
+        <div class="ctrl-item"><div class="ctrl-visual">😮</div><div class="ctrl-label">MOUTH OPEN</div><div class="ctrl-action">EAT COINS / POWER-UP</div></div>
+        <div class="ctrl-item"><div class="ctrl-visual">😐</div><div class="ctrl-label">MOUTH CLOSED</div><div class="ctrl-action">STOP EATING</div></div>
+        <div class="ctrl-item"><div class="ctrl-visual">🫦➡️</div><div class="ctrl-label">TILT RIGHT</div><div class="ctrl-action">RIGHT LANE</div></div>
+        <div class="ctrl-item"><div class="ctrl-visual">⬅️🫦</div><div class="ctrl-label">TILT LEFT</div><div class="ctrl-action">LEFT LANE</div></div>
+        <div class="ctrl-item"><div class="ctrl-visual">🙂</div><div class="ctrl-label">STRAIGHT</div><div class="ctrl-action">MIDDLE LANE</div></div>
+        <div class="ctrl-item"><div class="ctrl-visual">⌨️</div><div class="ctrl-label">A/D or ←/→</div><div class="ctrl-action">KEYBOARD BACKUP</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-zone"></div>
+<script>
+const ps = (() => { try { return JSON.parse(localStorage.getItem('pac_runner')||'{}'); } catch { return {}; } })();
+document.getElementById('stat-best').textContent  = (ps.best||0).toLocaleString();
+document.getElementById('stat-games').textContent = (ps.games||0).toLocaleString();
+document.getElementById('stat-coins').textContent = (ps.coins||0).toLocaleString();
+document.getElementById('nc-val').textContent     = (ps.coins||0).toLocaleString();
+if (ps.name) document.getElementById('player-name').value = ps.name;
+
+function startGame() {
+  const name = document.getElementById('player-name').value.trim().toUpperCase() || 'PAC GHOST';
+  const d = JSON.parse(localStorage.getItem('pac_runner')||'{}');
+  localStorage.setItem('pac_runner', JSON.stringify({...d, name}));
+  window.location.href = '/game';
+}
+document.getElementById('player-name').addEventListener('keydown', e => { if(e.key==='Enter') startGame(); });
+</script>
+</body>
+</html>

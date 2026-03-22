@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEADERBOARD — PAC-RUNNER</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">◉ PAC-RUNNER</a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">HOME</a>
+    <a href="/game" class="nav-link">PLAY</a>
+    <a href="/leaderboard" class="nav-link active">SCORES</a>
+  </div>
+</nav>
+<div class="page" style="max-width:900px;margin:0 auto;padding:90px 24px 80px;">
+  <div style="text-align:center;margin-bottom:48px;">
+    <h1 style="font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:900;
+               background:linear-gradient(135deg,#ffd700,var(--yellow));
+               -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">
+      🏆 LEADERBOARD
+    </h1>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:4px;color:rgba(255,255,255,.35);">
+      TOP GHOST HUNTERS — ALL TIME
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div id="stats-row" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:36px;"></div>
+
+  <!-- Table -->
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+    <table class="lb-table" id="lb-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>CALLSIGN</th>
+          <th>SCORE</th>
+          <th>SPEED</th>
+          <th>COINS</th>
+          <th>GHOSTS</th>
+          <th>DATE</th>
+        </tr>
+      </thead>
+      <tbody id="lb-body">
+        <tr><td colspan="7" style="text-align:center;padding:60px;color:rgba(255,255,255,.2);letter-spacing:3px;font-size:13px;">LOADING...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+    <a href="/game" class="btn btn-primary">▶ PLAY NOW</a>
+    <a href="/" class="btn btn-secondary">HOME</a>
+  </div>
+</div>
+
+<script>
+async function load() {
+  try {
+    const res = await fetch('/api/leaderboard');
+    const rows = await res.json();
+    const ps = JSON.parse(localStorage.getItem('pac_runner')||'{}');
+    const myName = (ps.name||'').toUpperCase();
+
+    // Stats
+    const statsEl = document.getElementById('stats-row');
+    const top = rows[0]?.score || 0;
+    const avg = rows.length ? Math.round(rows.reduce((a,r)=>a+r.score,0)/rows.length) : 0;
+    statsEl.innerHTML = [
+      ['ENTRIES', rows.length, 'var(--cyan)'],
+      ['TOP SCORE', top.toLocaleString(), 'var(--yellow)'],
+      ['AVG SCORE', avg.toLocaleString(), 'var(--green)'],
+      ['YOUR BEST', (ps.best||0).toLocaleString(), '#ff00e5'],
+    ].map(([l,v,c]) => `
+      <div class="card" style="min-width:110px;text-align:center;padding:14px 22px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:${c};">${v}</div>
+        <div style="font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.3);margin-top:4px;">${l}</div>
+      </div>
+    `).join('');
+
+    if (!rows.length) {
+      document.getElementById('lb-body').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:60px;color:rgba(255,255,255,.2);letter-spacing:3px;">NO SCORES YET — BE FIRST</td></tr>`;
+      return;
+    }
+
+    document.getElementById('lb-body').innerHTML = rows.map((r, i) => {
+      const rank = i + 1;
+      const rankClass = rank===1?'rank-gold':rank===2?'rank-silver':rank===3?'rank-bronze':'';
+      const isMe = myName && r.player_name === myName;
+      const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':('#' + rank);
+      return `<tr class="${isMe?'rank-you':''}">
+        <td class="${rankClass}" style="font-family:'Orbitron',sans-serif;font-weight:700;">${medal}</td>
+        <td class="${isMe?'rank-you':''}" style="font-family:'Orbitron',sans-serif;font-size:12px;">
+          ${r.player_name}${isMe?' <span style="font-size:9px;opacity:.6;">◀ YOU</span>':''}
+        </td>
+        <td class="score-cell">${Number(r.score).toLocaleString()}</td>
+        <td style="color:var(--cyan);">${r.max_speed||'—'}×</td>
+        <td style="color:var(--yellow);">◈ ${Number(r.coins_collected||0).toLocaleString()}</td>
+        <td>👻 ${r.ghosts_eaten||0}</td>
+        <td style="color:rgba(255,255,255,.3);font-size:11px;">${(r.timestamp||'').slice(0,10)}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('lb-body').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--red);">FAILED TO LOAD</td></tr>`;
+  }
+}
+load();
+</script>
+</body>
+</html>
